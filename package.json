@@ -12,6 +12,7 @@
   "author": "Nullish",
   "license": "GNU",
   "dependencies": {
+    "joinxmlfiles": "^1.0.2",
     "strip-ansi": "^6.0.0",
     "uuid": "^8.3.2",
     "yargs": "^15.4.1"
