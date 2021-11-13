@@ -1,6 +1,10 @@
+// TODO: try https://www.npmjs.com/package/xpath
+
 const fs = require('fs')
 const path = require('path')
 const yargs = require('yargs')
+const { DOMParser } = require('@xmldom/xmldom');
+const xpath = require('xpath');
 const colors = require("colors"); // for colourising console output
 const {
     v4: uuidv4
