@@ -2,7 +2,7 @@
 
 const fs = require('fs')
 const path = require('path')
-const yargs = require('yargs')
+const joinxmlfiles = require('joinxmlfiles');
 const { DOMParser } = require('@xmldom/xmldom');
 const xpath = require('xpath');
 const colors = require("colors"); // for colourising console output
@@ -11,57 +11,16 @@ const {
 } = require('uuid');
 const stripAnsi = require('strip-ansi');
 
-const jsontocsv = (...args) => {
+const junitcsv = (dir) => {
 
-    // Command line arguments from yargs
-    const argv = yargs
-        .option('directory', {
-            alias: 'd',
-            describe: 'Directory containing test scripts',
-            type: 'string'
-        })
-        .option('file', {
-            alias: 'f',
-            default: './manifest.json',
-            describe: 'File path to JSON file for converting',
-            type: 'string'
-        })
-        .option('suppress', {
-            alias: 's',
-            default: false,
-            describe: 'Suppresses full report of tests run',
-            type: 'boolean'
-        })
-        .argv
+const xmlInput = joinxmlfiles(dir);
 
-    // Receives a JSON output from wdio-json-reporter and converts selected elements to CSV. Ouputs to STDOUT.
+    const testSuites = xpath.select('//testsuite', xmlInput);
 
-    const dir = argv.directory;
-
-    // Load webdriver merged output JSON file into var.
-    const jsonInput = args[0] || argv.file;
-
-    // Check if input file exists
-    colors.enable();
-    if (!(fs.existsSync(jsonInput))) {
-        console.log("I couldn't find the manifest.json file to process.\n\n".red +
-            "Try running: ".green +
-            "node joinjson ./reports/[path-to-your-reports]/\n\n".bold.green + 
-            "Then run jsontocsv again.\n\n".green);
-        return;
-    }
-    colors.disable();
-    let runs = JSON.parse(fs.readFileSync(jsonInput));
-    const suppress = argv.suppress;
-
-    /* Behaviour to handle if only one report JSON file is in scope rather than several merged objects.
-    If it's a single object, create an empty array for processing and push the file contents as the first element. */
-
-    if (!runs.length) {
-        runs = []
-        runs.push(JSON.parse(fs.readFileSync(jsonInput)))
-    }
-
+ /* construction to use for parsing test suites
+ let f = xpath.select('//testsuite/properties/property[@name="file"]', xmlInput);
+f.forEach(f => { console.log(f.getAttribute("value")) });
+*/   
     // Array to hold output.
     var out = [];
     var scriptList = []; // to hold list of script IDs to compare to files
@@ -253,4 +212,5 @@ function getAssertionURLs(errType, errDetail = "") {
     }
 }
 
+junitcsv('../reports/');
 module.exports = jsontocsv;
