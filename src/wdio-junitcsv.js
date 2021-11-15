@@ -14,25 +14,41 @@ const stripAnsi = require('strip-ansi');
 const junitcsv = (dir) => {
 
 const xmlInput = joinxmlfiles(dir);
-
-    const testSuites = xpath.select('//testsuite', xmlInput);
+const testSuites = xpath.select('//testsuite', xmlInput);
 
  /* construction to use for parsing test suites
  let f = xpath.select('//testsuite/properties/property[@name="file"]', xmlInput);
 f.forEach(f => { console.log(f.getAttribute("value")) });
+
+test for undefined
+test = typeof(unv) == 'undefined' ? '' : unv;
+
 */   
     // Array to hold output.
-    var out = [];
-    var scriptList = []; // to hold list of script IDs to compare to files
+    const out = [];
     // Header row
-    out.push('"UUID","uniqueId","specPath","scriptId","testId","suiteName","initialPath","browserName","platformName","deviceName","orientation","testName","state","errorType","error","expectedURL","actualURL","imageVariance","start","end","duration"');
+    //out.push('"UUID","uniqueId","specPath","scriptId","testId","suiteName","initialPath","browserName","platformName","deviceName","orientation","testName","state","errorType","error","expectedURL","actualURL","imageVariance","start","end","duration"');
 
-    for (run of runs) {
-        var startTime = run.start;
-        var endTime = run.end;
-        var browserName = checkExist(run.capabilities.browserName);
-        var platformName = run.capabilities.platformName;
-        var specURI = run.specs[0];
+    for (suite of testSuites) {
+        var startTime = suite.getAttribute('timestamp');
+        var duration = suite.getAttribute('time');
+        var props = suite.getElementsByTagName('property');
+        for (i = 0; i < props.length; i++) {
+            switch (props[i].getAttribute('name')) {
+                case 'suiteName':
+                var suiteName = props[i].getAttribute('value');
+                break;
+
+                case 'capabilities':
+                var capabilities = props[i].getAttribute('value');
+                break;
+
+                case 'file':
+                var specPath = props[i].getAttribute('value');
+                break;
+            }
+        }
+        // var specURI = run.specs[0];
         var specPath = specURI.replace(/\/[a-zA-Z0-9()_-]*?\.js/, ""); // Extracts directory from test spec absolute file path.
         // Select platform name based on which variant of field is populated.
         platformName = typeof(platformName) !== 'undefined' ? platformName : run.capabilities.platform
@@ -45,7 +61,6 @@ f.forEach(f => { console.log(f.getAttribute("value")) });
             var tests = suite.tests;
             for (test of tests) {
                 var testName = test.name;
-                var duration = test.duration;
                 var state = test.state;
                 var errorType = checkExist(test.errorType);
                 var error = reformatError(checkExist(test.error));
