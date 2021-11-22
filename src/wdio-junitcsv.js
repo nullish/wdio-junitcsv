@@ -41,32 +41,34 @@ test = typeof(unv) == 'undefined' ? '' : unv;
 
                 case 'capabilities':
                 var capabilities = props[i].getAttribute('value');
+                console.log(capabilities);
                 break;
 
                 case 'file':
-                var specPath = props[i].getAttribute('value');
+                var specURI = props[i].getAttribute('value');
                 break;
             }
         }
         // var specURI = run.specs[0];
         var specPath = specURI.replace(/\/[a-zA-Z0-9()_-]*?\.js/, ""); // Extracts directory from test spec absolute file path.
-        // Select platform name based on which variant of field is populated.
-        platformName = typeof(platformName) !== 'undefined' ? platformName : run.capabilities.platform
-        var deviceName = getMobileDevice(run.capabilities);
-        var orientation = checkExist(run.capabilities.orientation);
-        var suites = run.suites;
-        for (suite of suites) {
-            var suiteName = suite.name;
-            var suiteURI = getSuiteURI(specURI);
-            var tests = suite.tests;
+        var arrCapabilities = capabilities.split('.');
+        var browserName = arrCapabilities[1].match(/^([0-9]|_)+$/) ? arrCapabilities[0] : '';
+        var platformName = arrCapabilities[1].match(/^([0-9]|_)+$/) ? arrCapabilities[2] : arrCapabilities[1]
+        var testCases = suite.getElementsByTagName('testcase');
+        for (i=0; i<testCases.length; i++) {
+            var testName = testCases[i].getAttribute('name');
+            //var suiteURI = getSuiteURI(specURI);
+            var elState = testCases[i].getElementsByTagName('failure');
+            var state = elState.length > 0 ? "failed" : "passed";
+            if (state == 'failed') {
+                var error = reformatError(testCases[i].getElementsByTagName('error').getAttribute('message'));
+            } else {
+                var error = "";
+            }
+            var urlActual = getAssertionURLs(errorType, test.error).actual;
+            var urlExpected = getAssertionURLs(errorType, test.error).expected;
+            var imageVariance = getImageVariance(checkExist(test.error));
             for (test of tests) {
-                var testName = test.name;
-                var state = test.state;
-                var errorType = checkExist(test.errorType);
-                var error = reformatError(checkExist(test.error));
-                var urlActual = getAssertionURLs(errorType, test.error).actual;
-                var urlExpected = getAssertionURLs(errorType, test.error).expected;
-                var imageVariance = getImageVariance(checkExist(test.error));
                 var timeUuid = uuidv4(); // timestamp based univeral unique identififier
                 var ids = constructUID(suiteName, testName, browserName, platformName, deviceName)
                 var uniqueId = ids.uid
@@ -158,7 +160,7 @@ function reformatError(e) {
 	}
 }
 
-function constructUID(scriptName, testName, browserName, platformName, deviceName) {
+function constructUID(scriptName, testName, browserName, platformName) {
     // Construct uinique identifier for reports, combining suite, test and capabilities details.
     var scriptId = scriptName.match(/(?<=^T|P)[0-9]+/);
     if (scriptId !== null) {
@@ -171,9 +173,8 @@ function constructUID(scriptName, testName, browserName, platformName, deviceNam
 
     let browserPfx = makePrefix(browserName);
     let platformPfx = makePrefix(platformName);
-    let devicePfx = makePrefix(deviceName);
 
-    let uid = `${scriptId}:${shouldAssert}:${browserPfx}:${platformPfx}:${devicePfx}`;
+    let uid = `${scriptId}:${shouldAssert}:${browserPfx}:${platformPfx}`;
 
     return {
         "uid": uid,
