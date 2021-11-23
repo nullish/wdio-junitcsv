@@ -27,7 +27,7 @@ test = typeof(unv) == 'undefined' ? '' : unv;
     // Array to hold output.
     const out = [];
     // Header row
-    //out.push('"UUID","uniqueId","specPath","scriptId","testId","suiteName","initialPath","browserName","platformName","deviceName","orientation","testName","state","errorType","error","expectedURL","actualURL","imageVariance","start","end","duration"');
+    out.push('"UUID","uniqueId","specPath","scriptId","testId","suiteName","browserName","platformName","testName","state","error","start","duration"');
 
     for (suite of testSuites) {
         var startTime = suite.getAttribute('timestamp');
@@ -41,7 +41,6 @@ test = typeof(unv) == 'undefined' ? '' : unv;
 
                 case 'capabilities':
                 var capabilities = props[i].getAttribute('value');
-                console.log(capabilities);
                 break;
 
                 case 'file':
@@ -61,40 +60,26 @@ test = typeof(unv) == 'undefined' ? '' : unv;
             var elState = testCases[i].getElementsByTagName('failure');
             var state = elState.length > 0 ? "failed" : "passed";
             if (state == 'failed') {
-                var error = reformatError(testCases[i].getElementsByTagName('error').getAttribute('message'));
+                var error = reformatError(testCases[i].getElementsByTagName('error')[0].getAttribute('message'));
             } else {
                 var error = "";
             }
-            var urlActual = getAssertionURLs(errorType, test.error).actual;
-            var urlExpected = getAssertionURLs(errorType, test.error).expected;
-            var imageVariance = getImageVariance(checkExist(test.error));
-            for (test of tests) {
-                var timeUuid = uuidv4(); // timestamp based univeral unique identififier
-                var ids = constructUID(suiteName, testName, browserName, platformName, deviceName)
-                var uniqueId = ids.uid
-                var scriptId = ids.scriptId
-                var testId = ids.testId
-                var suiteEls = [timeUuid, uniqueId, specPath, scriptId, testId, suiteName, suiteURI, browserName, platformName, deviceName, orientation, testName, state, errorType, error, urlExpected, urlActual, imageVariance, startTime, endTime, duration];
-                line = '"' + suiteEls.join('","') + '"';
-                out.push(line);
-            }
+            var timeUuid = uuidv4(); // timestamp based univeral unique identififier
+            var ids = constructUID(suiteName, testName, browserName, platformName)
+            var uniqueId = ids.uid
+            var scriptId = ids.scriptId
+            var testId = ids.testId
+            // var urlActual = getAssertionURLs(errorType, test.error).actual;
+            // var urlExpected = getAssertionURLs(errorType, test.error).expected;
+            // var imageVariance = getImageVariance(checkExist(test.error));
+            var suiteEls = [timeUuid, uniqueId, specPath, scriptId, testId, suiteName, browserName, platformName, testName, state, error, startTime, duration];
+            line = '"' + suiteEls.join('","') + '"';
+            out.push(line);
         }
     }
     // Output
     csv = out.join('\n');
-
-    if (!suppress) {
-        console.log(csv);
-    }
-
-    if (dir) {
-        // If directory parameter has been set, also output list of scripts that haven't run
-        console.log(`\n\n"EXCEPTIONS NOT RUN"`);
-        const scriptFiles = getFileList(dir, true);
-        let exceptions = arrayDiff(scriptFiles, scriptList);
-        exceptions = exceptions.join("\n");
-        console.log(exceptions); // append list of files not run due to connection drop to end of report.
-    }
+    console.log(csv);
 }
 
 function getSuiteURI(specFile) {
@@ -228,5 +213,5 @@ function getAssertionURLs(errType, errDetail = "") {
     }
 }
 
-junitcsv('../reports/');
-module.exports = jsontocsv;
+junitcsv('./reports/');
+module.exports = junitcsv;
