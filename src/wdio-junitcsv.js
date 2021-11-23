@@ -27,7 +27,7 @@ test = typeof(unv) == 'undefined' ? '' : unv;
     // Array to hold output.
     const out = [];
     // Header row
-    out.push('"UUID","uniqueId","specPath","scriptId","testId","suiteName","browserName","platformName","testName","state","error","start","duration"');
+    out.push('"UUID","uniqueId","specPath","scriptId","testId","suiteName","browserName","platformName","testName","state","error","urlExpected","urlActual","start","duration"');
 
     for (suite of testSuites) {
         var startTime = suite.getAttribute('timestamp');
@@ -69,10 +69,10 @@ test = typeof(unv) == 'undefined' ? '' : unv;
             var uniqueId = ids.uid
             var scriptId = ids.scriptId
             var testId = ids.testId
-            // var urlActual = getAssertionURLs(errorType, test.error).actual;
-            // var urlExpected = getAssertionURLs(errorType, test.error).expected;
+            var urlActual = getAssertionURLs(error).actual;
+            var urlExpected = getAssertionURLs(error).expected;
             // var imageVariance = getImageVariance(checkExist(test.error));
-            var suiteEls = [timeUuid, uniqueId, specPath, scriptId, testId, suiteName, browserName, platformName, testName, state, error, startTime, duration];
+            var suiteEls = [timeUuid, uniqueId, specPath, scriptId, testId, suiteName, browserName, platformName, testName, state, error, urlExpected, urlActual, startTime, duration];
             line = '"' + suiteEls.join('","') + '"';
             out.push(line);
         }
@@ -190,7 +190,7 @@ function getImageVariance(errDetail) {
     return ivary;
 }
 
-function getAssertionURLs(errType, errDetail = "") {
+function getAssertionURLs(errDetail) {
     // Receives assertion error type and detailm, and returns expected and actual URLs.
     function removeDomain(inUrl = "") {
         if (inUrl.match(/https?:.*?\/{2}.*?\//)) {
@@ -202,9 +202,9 @@ function getAssertionURLs(errType, errDetail = "") {
     }
     let urlActual = "";
     let urlExpected = "";
-    if (errDetail.match(/(?<=").*?(?=")/g) && errDetail.includes("Expect window to have url containing")) {
-        const urls = errDetail.match(/(?<=").*?(?=")/g);
-        urlExpected = stripAnsi(urls[0]);
+    if (errDetail.match(/(\s|http(s?):)\/.*?\s/g) && errDetail.includes("Expect window to have url containing")) {
+        const urls = errDetail.match(/(\s|http(s?):)\/.*?\s/g);
+        urlExpected = stripAnsi(urls[0]).trim();
         urlActual = stripAnsi(removeDomain(urls[1]));
     }
     return {
