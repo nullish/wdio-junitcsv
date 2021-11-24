@@ -4,20 +4,18 @@
 * @param {string} dir - directory of junit repoort XML files
 */
 
-const fs = require('fs')
-const path = require('path')
+const fs = require('fs');
 const joinxmlfiles = require('joinxmlfiles');
 const { DOMParser } = require('@xmldom/xmldom');
 const xpath = require('xpath');
 const {
-    v4: uuidv4
+    v4: uuidv4,
 } = require('uuid');
 const stripAnsi = require('strip-ansi');
 
 const junitcsv = (dir) => {
-
 const xmlInput = joinxmlfiles(dir); // execute module to to join XML files into single DOM object
-const testSuites = xpath.select('//testsuite', xmlInput);  
+const testSuites = xpath.select('//testsuite', xmlInput);
     // Array to hold output.
     const out = [];
     // Header row
@@ -45,12 +43,11 @@ const testSuites = xpath.select('//testsuite', xmlInput);
         const specPath = specURI.replace(/\/[a-zA-Z0-9()_-]*?\.js/, ""); // Extracts directory from test spec absolute file path.
         const arrCapabilities = capabilities.split('.');
         const browserName = arrCapabilities[1].match(/^([0-9]|_)+$/) ? arrCapabilities[0] : '';
-        const platformName = arrCapabilities[1].match(/^([0-9]|_)+$/) ? arrCapabilities[2] : arrCapabilities[1]
+        const platformName = arrCapabilities[1].match(/^([0-9]|_)+$/) ? arrCapabilities[2] : arrCapabilities[1];
         const deviceName = getDeviceName(arrCapabilities);
         const testCases = suite.getElementsByTagName('testcase');
         for (i=0; i<testCases.length; i++) {
             const testName = testCases[i].getAttribute('name');
-            //const suiteURI = getSuiteURI(specURI);
             const elState = testCases[i].getElementsByTagName('failure');
             const state = elState.length > 0 ? "failed" : "passed";
             if (state == 'failed') {
@@ -59,10 +56,10 @@ const testSuites = xpath.select('//testsuite', xmlInput);
                 var error = "";
             }
             const timeUuid = uuidv4(); // timestamp based univeral unique identififier
-            const ids = constructUID(suiteName, testName, browserName, platformName, deviceName)
-            const uniqueId = ids.uid
-            const scriptId = ids.scriptId
-            const testId = ids.testId
+            const ids = constructUID(suiteName, testName, browserName, platformName, deviceName);
+            const uniqueId = ids.uid;
+            const scriptId = ids.scriptId;
+            const testId = ids.testId;
             const urlActual = getAssertionURLs(error).actual;
             const urlExpected = getAssertionURLs(error).expected;
             const imageVariance = getImageVariance(checkExist(error));
@@ -74,7 +71,7 @@ const testSuites = xpath.select('//testsuite', xmlInput);
     // Output
     csv = out.join('\n');
     console.log(csv);
-}
+};
 
 function getSuiteURI(specFile) {
     // Extracts initial file URI from test script JS file
@@ -109,15 +106,15 @@ function checkExist(e) {
 }
 
 function reformatError(e) {
-	// Removes control characters, commas and inverted commas to prevent borken column delimiting.
-	if (e.length = 0) {
-		return "";
-	} else {
-		let rErr = stripAnsi(e);
-		rErr = rErr.replace(/\n/g, '');
-		rErr = rErr.replace(/"|,/g, ' ');
-		return rErr;
-	}
+    // Removes control characters, commas and inverted commas to prevent borken column delimiting.
+    if (e.length = 0) {
+        return "";
+    } else {
+        let rErr = stripAnsi(e);
+        rErr = rErr.replace(/\n/g, '');
+        rErr = rErr.replace(/"|,/g, ' ');
+        return rErr;
+    }
 }
 
 function constructUID(scriptName, testName, browserName, platformName, deviceName) {
@@ -185,8 +182,8 @@ function getAssertionURLs(errDetail) {
     }
     return {
         "expected": urlExpected,
-        "actual": urlActual
-    }
+        "actual": urlActual,
+    };
 }
 
 junitcsv('./reports/');
