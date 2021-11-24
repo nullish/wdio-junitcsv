@@ -12,7 +12,6 @@
   "author": "Nullish",
   "license": "GNU",
   "dependencies": {
-    "@xmldom/xmldom": "^0.7.5",
     "colors": "^1.4.0",
     "joinxmlfiles": "^1.0.3",
     "strip-ansi": "^6.0.0",
