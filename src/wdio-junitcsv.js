@@ -27,7 +27,7 @@ test = typeof(unv) == 'undefined' ? '' : unv;
     // Array to hold output.
     const out = [];
     // Header row
-    out.push('"UUID","uniqueId","specPath","scriptId","testId","suiteName","browserName","platformName","testName","state","error","urlExpected","urlActual","start","duration"');
+    out.push('"UUID","uniqueId","specPath","scriptId","testId","suiteName","browserName","platformName","testName","state","error","urlExpected","urlActual","imageVariance","start","duration"');
 
     for (suite of testSuites) {
         var startTime = suite.getAttribute('timestamp');
@@ -71,8 +71,8 @@ test = typeof(unv) == 'undefined' ? '' : unv;
             var testId = ids.testId
             var urlActual = getAssertionURLs(error).actual;
             var urlExpected = getAssertionURLs(error).expected;
-            // var imageVariance = getImageVariance(checkExist(test.error));
-            var suiteEls = [timeUuid, uniqueId, specPath, scriptId, testId, suiteName, browserName, platformName, testName, state, error, urlExpected, urlActual, startTime, duration];
+            var imageVariance = getImageVariance(checkExist(error));
+            var suiteEls = [timeUuid, uniqueId, specPath, scriptId, testId, suiteName, browserName, platformName, testName, state, error, urlExpected, urlActual, imageVariance, startTime, duration];
             line = '"' + suiteEls.join('","') + '"';
             out.push(line);
         }
@@ -181,11 +181,11 @@ function constructUID(scriptName, testName, browserName, platformName) {
 function getImageVariance(errDetail) {
     /* Receives wdio error message. If the message contains image comparison variane from baseline 
     the function returns the the value of the variance. */
-    var ivary = errDetail.match(/(?<=Received:\s{1,}\u001b\[31m)[0-9]{1,}/g);
+    var ivary = errDetail.match(/(?!Received:\s)[0-9]*?$/g);
     if (!ivary) {
         ivary = "";
     } else {
-        ivary = ivary.toString();
+        ivary = ivary[0];
     }
     return ivary;
 }
@@ -213,5 +213,5 @@ function getAssertionURLs(errDetail) {
     }
 }
 
-junitcsv('./reports/');
+junitcsv('./reports/tests/');
 module.exports = junitcsv;
