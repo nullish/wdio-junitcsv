@@ -12,7 +12,8 @@ const {
 } = require('uuid');
 const stripAnsi = require('strip-ansi');
 
-const junitcsv = (dir) => {
+const wdioJunitCsv = (...args) => {
+const dir = args[0] || process.argv[2];
 const xmlInput = joinxmlfiles(dir); // execute module to to join XML files into single DOM object
 const testSuites = xpath.select('//testsuite', xmlInput);
     // Array to hold output.
@@ -185,5 +186,4 @@ function getAssertionURLs(errDetail) {
     };
 }
 
-junitcsv('./reports/');
-module.exports = junitcsv;
+module.exports = wdioJunitCsv;

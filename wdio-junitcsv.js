@@ -1,2 +1,2 @@
-const jsontocsv = require('./src/jsontocsv');
-jsontocsv();
+const wdioJunitCsv = require('./src/wdio-junitcsv');
+wdioJunitCsv();
