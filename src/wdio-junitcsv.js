@@ -66,7 +66,7 @@ test = typeof(unv) == 'undefined' ? '' : unv;
                 var error = "";
             }
             var timeUuid = uuidv4(); // timestamp based univeral unique identififier
-            var ids = constructUID(suiteName, testName, browserName, platformName)
+            var ids = constructUID(suiteName, testName, browserName, platformName, deviceName)
             var uniqueId = ids.uid
             var scriptId = ids.scriptId
             var testId = ids.testId
@@ -157,7 +157,7 @@ function reformatError(e) {
 	}
 }
 
-function constructUID(scriptName, testName, browserName, platformName) {
+function constructUID(scriptName, testName, browserName, platformName, deviceName) {
     // Construct uinique identifier for reports, combining suite, test and capabilities details.
     var scriptId = scriptName.match(/(?<=^T|P)[0-9]+/);
     if (scriptId !== null) {
@@ -170,8 +170,9 @@ function constructUID(scriptName, testName, browserName, platformName) {
 
     let browserPfx = makePrefix(browserName);
     let platformPfx = makePrefix(platformName);
+    let devicePfx = makePrefix(deviceName);
 
-    let uid = `${scriptId}:${shouldAssert}:${browserPfx}:${platformPfx}`;
+    let uid = `${scriptId}:${shouldAssert}:${browserPfx}:${platformPfx}:${deviceName}`;
 
     return {
         "uid": uid,
