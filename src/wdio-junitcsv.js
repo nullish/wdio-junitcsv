@@ -168,7 +168,7 @@ function getAssertionURLs(errDetail) {
     function removeDomain(inUrl = "") {
         if (inUrl.match(/https?:.*?\/{2}.*?\//)) {
             let outUrl = "/" + inUrl.replace(/https?:.*?\/{2}.*?\//, "");
-            return outUrl
+            return outUrl;
         } else {
             return "";
         }
