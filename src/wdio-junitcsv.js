@@ -1,11 +1,14 @@
-// TODO: try https://www.npmjs.com/package/xpath
+/**
+* Translates a DOM object of webdriver Junit test reports into CSV
+* and outputs to STDOUT
+* @param {string} dir - directory of junit repoort XML files
+*/
 
 const fs = require('fs')
 const path = require('path')
 const joinxmlfiles = require('joinxmlfiles');
 const { DOMParser } = require('@xmldom/xmldom');
 const xpath = require('xpath');
-const colors = require("colors"); // for colourising console output
 const {
     v4: uuidv4
 } = require('uuid');
@@ -13,26 +16,17 @@ const stripAnsi = require('strip-ansi');
 
 const junitcsv = (dir) => {
 
-const xmlInput = joinxmlfiles(dir);
-const testSuites = xpath.select('//testsuite', xmlInput);
-
- /* construction to use for parsing test suites
- let f = xpath.select('//testsuite/properties/property[@name="file"]', xmlInput);
-f.forEach(f => { console.log(f.getAttribute("value")) });
-
-test for undefined
-test = typeof(unv) == 'undefined' ? '' : unv;
-
-*/   
+const xmlInput = joinxmlfiles(dir); // execute module to to join XML files into single DOM object
+const testSuites = xpath.select('//testsuite', xmlInput);  
     // Array to hold output.
     const out = [];
     // Header row
     out.push('"UUID","uniqueId","specPath","scriptId","testId","suiteName","browserName","platformName","deviceName","testName","state","error","urlExpected","urlActual","imageVariance","start","duration"');
 
     for (suite of testSuites) {
-        var startTime = suite.getAttribute('timestamp');
-        var duration = suite.getAttribute('time');
-        var props = suite.getElementsByTagName('property');
+        const startTime = suite.getAttribute('timestamp');
+        const duration = suite.getAttribute('time');
+        const props = suite.getElementsByTagName('property');
         for (i = 0; i < props.length; i++) {
             switch (props[i].getAttribute('name')) {
                 case 'suiteName':
@@ -48,32 +42,31 @@ test = typeof(unv) == 'undefined' ? '' : unv;
                 break;
             }
         }
-        // var specURI = run.specs[0];
-        var specPath = specURI.replace(/\/[a-zA-Z0-9()_-]*?\.js/, ""); // Extracts directory from test spec absolute file path.
-        var arrCapabilities = capabilities.split('.');
-        var browserName = arrCapabilities[1].match(/^([0-9]|_)+$/) ? arrCapabilities[0] : '';
-        var platformName = arrCapabilities[1].match(/^([0-9]|_)+$/) ? arrCapabilities[2] : arrCapabilities[1]
-        var deviceName = getDeviceName(arrCapabilities);
-        var testCases = suite.getElementsByTagName('testcase');
+        const specPath = specURI.replace(/\/[a-zA-Z0-9()_-]*?\.js/, ""); // Extracts directory from test spec absolute file path.
+        const arrCapabilities = capabilities.split('.');
+        const browserName = arrCapabilities[1].match(/^([0-9]|_)+$/) ? arrCapabilities[0] : '';
+        const platformName = arrCapabilities[1].match(/^([0-9]|_)+$/) ? arrCapabilities[2] : arrCapabilities[1]
+        const deviceName = getDeviceName(arrCapabilities);
+        const testCases = suite.getElementsByTagName('testcase');
         for (i=0; i<testCases.length; i++) {
-            var testName = testCases[i].getAttribute('name');
-            //var suiteURI = getSuiteURI(specURI);
-            var elState = testCases[i].getElementsByTagName('failure');
-            var state = elState.length > 0 ? "failed" : "passed";
+            const testName = testCases[i].getAttribute('name');
+            //const suiteURI = getSuiteURI(specURI);
+            const elState = testCases[i].getElementsByTagName('failure');
+            const state = elState.length > 0 ? "failed" : "passed";
             if (state == 'failed') {
                 var error = reformatError(testCases[i].getElementsByTagName('error')[0].getAttribute('message'));
             } else {
                 var error = "";
             }
-            var timeUuid = uuidv4(); // timestamp based univeral unique identififier
-            var ids = constructUID(suiteName, testName, browserName, platformName, deviceName)
-            var uniqueId = ids.uid
-            var scriptId = ids.scriptId
-            var testId = ids.testId
-            var urlActual = getAssertionURLs(error).actual;
-            var urlExpected = getAssertionURLs(error).expected;
-            var imageVariance = getImageVariance(checkExist(error));
-            var suiteEls = [timeUuid, uniqueId, specPath, scriptId, testId, suiteName, browserName, platformName, deviceName, testName, state, error, urlExpected, urlActual, imageVariance, startTime, duration];
+            const timeUuid = uuidv4(); // timestamp based univeral unique identififier
+            const ids = constructUID(suiteName, testName, browserName, platformName, deviceName)
+            const uniqueId = ids.uid
+            const scriptId = ids.scriptId
+            const testId = ids.testId
+            const urlActual = getAssertionURLs(error).actual;
+            const urlExpected = getAssertionURLs(error).expected;
+            const imageVariance = getImageVariance(checkExist(error));
+            const suiteEls = [timeUuid, uniqueId, specPath, scriptId, testId, suiteName, browserName, platformName, deviceName, testName, state, error, urlExpected, urlActual, imageVariance, startTime, duration];
             line = '"' + suiteEls.join('","') + '"';
             out.push(line);
         }
@@ -94,36 +87,6 @@ function getSuiteURI(specFile) {
     }
     return initURI;
 }
-
-function getFileList(dir) {
-    // Get list of files from specified directory
-    const fileNames = fs.readdirSync(dir);
-    let fileArray = [];
-    var i = 0;
-    fileNames.forEach(fileName => {
-        fileArray.push(fileName.replace(/\..*/g, ""));
-    });
-    return fileArray;
-}
-
-function arrayDiff(arrX, arrY) {
-    // returns elements in array X that do not appear in array Y
-    arrDiff = arrX.filter(elX => !arrY.includes(elX));
-    return arrDiff;
-}
-
-function getMobileDevice(e) {
-    // Gets mobile device name and model depending on how it's captured in capabilities object.
-    var deviceName;
-    if (typeof(e.deviceManufacturer) !== 'undefined') {
-        deviceName = e.deviceManufacturer + ' ' + e.deviceModel;
-    } else if (typeof(e.deviceName) !== 'undefined') {
-        deviceName = e.deviceName;
-    } else {
-        deviceName = '';
-    }
-    return deviceName;
-};
 
 function getDeviceName(arrCaps) {
     if (arrCaps[1].match(/^([0-9]|_)+$/)) {
