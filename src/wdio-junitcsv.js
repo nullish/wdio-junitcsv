@@ -27,7 +27,7 @@ test = typeof(unv) == 'undefined' ? '' : unv;
     // Array to hold output.
     const out = [];
     // Header row
-    out.push('"UUID","uniqueId","specPath","scriptId","testId","suiteName","browserName","platformName","testName","state","error","urlExpected","urlActual","imageVariance","start","duration"');
+    out.push('"UUID","uniqueId","specPath","scriptId","testId","suiteName","browserName","platformName","deviceName","testName","state","error","urlExpected","urlActual","imageVariance","start","duration"');
 
     for (suite of testSuites) {
         var startTime = suite.getAttribute('timestamp');
@@ -53,6 +53,7 @@ test = typeof(unv) == 'undefined' ? '' : unv;
         var arrCapabilities = capabilities.split('.');
         var browserName = arrCapabilities[1].match(/^([0-9]|_)+$/) ? arrCapabilities[0] : '';
         var platformName = arrCapabilities[1].match(/^([0-9]|_)+$/) ? arrCapabilities[2] : arrCapabilities[1]
+        var deviceName = getDeviceName(arrCapabilities);
         var testCases = suite.getElementsByTagName('testcase');
         for (i=0; i<testCases.length; i++) {
             var testName = testCases[i].getAttribute('name');
@@ -72,7 +73,7 @@ test = typeof(unv) == 'undefined' ? '' : unv;
             var urlActual = getAssertionURLs(error).actual;
             var urlExpected = getAssertionURLs(error).expected;
             var imageVariance = getImageVariance(checkExist(error));
-            var suiteEls = [timeUuid, uniqueId, specPath, scriptId, testId, suiteName, browserName, platformName, testName, state, error, urlExpected, urlActual, imageVariance, startTime, duration];
+            var suiteEls = [timeUuid, uniqueId, specPath, scriptId, testId, suiteName, browserName, platformName, deviceName, testName, state, error, urlExpected, urlActual, imageVariance, startTime, duration];
             line = '"' + suiteEls.join('","') + '"';
             out.push(line);
         }
@@ -123,6 +124,17 @@ function getMobileDevice(e) {
     }
     return deviceName;
 };
+
+function getDeviceName(arrCaps) {
+    if (arrCaps[1].match(/^([0-9]|_)+$/)) {
+        var deviceName = 'desktop';
+    } else if (arrCaps[1] == 'android') {
+        var deviceName = arrCaps[1] + '-' + arrCaps[2];
+    } else {
+        var deviceName = arrCaps[0];
+    }
+    return deviceName;
+}
 
 function checkExist(e) {
     // Check if attribute exists in JS object and return empty string if not
@@ -213,5 +225,5 @@ function getAssertionURLs(errDetail) {
     }
 }
 
-junitcsv('./reports/tests/');
+junitcsv('./reports/');
 module.exports = junitcsv;
