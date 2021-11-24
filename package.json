@@ -1,13 +1,13 @@
 {
   "name": "@nullish/wdio-junitcsv",
-  "version": "3.8.3",
-  "description": "Convert wdio ouptut from JSON to CSV",
+  "version": "1.0.0",
+  "description": "Convert wdio ouptut from Junit reportr XML to CSV",
   "main": "wdio-junitcsv.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "json,wdio,webdriverio"
+    "junit,wdio,webdriverio"
   ],
   "author": "Nullish",
   "license": "GNU",
