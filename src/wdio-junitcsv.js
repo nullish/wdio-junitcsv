@@ -6,7 +6,6 @@
 
 const fs = require('fs');
 const joinxmlfiles = require('joinxmlfiles');
-const { DOMParser } = require('@xmldom/xmldom');
 const xpath = require('xpath');
 const {
     v4: uuidv4,
