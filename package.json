@@ -1,5 +1,5 @@
 {
-  "name": "@nullish/wdio-junitcsv",
+  "name": "wdio-junitcsv",
   "version": "1.0.0",
   "description": "Convert wdio ouptut from Junit reportr XML to CSV",
   "main": "wdio-junitcsv.js",
