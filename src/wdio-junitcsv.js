@@ -119,10 +119,10 @@ function reformatError(e) {
 
 function constructUID(scriptName, testName, browserName, platformName, deviceName) {
     // Construct uinique identifier for reports, combining suite, test and capabilities details.
-    var scriptId = scriptName.match(/(?<=^T|P)[0-9]+/);
+
+    var scriptId = scriptName.match(/^([A-Z])([0-9]+)/); // E.g. patterns: A1, A12, B24
     if (scriptId !== null) {
-        scriptId = scriptId.toString();
-        scriptId = "T" + scriptId.padStart(2, 0);
+        scriptId = scriptId[1] + scriptId[2].padStart(2, 0); // yields initial letter followed by numerical value, padded with zeros to min three digits
     } else {
         scriptId = "";
     }
