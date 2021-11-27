@@ -120,24 +120,18 @@ function reformatError(e) {
 function constructUID(scriptName, testName, browserName, platformName, deviceName) {
     // Construct uinique identifier for reports, combining suite, test and capabilities details.
 
-    var scriptId = scriptName.match(/^([A-Z])([0-9]+)/); // E.g. patterns: A1, A12, B24
-    if (scriptId !== null) {
-        scriptId = scriptId[1] + scriptId[2].padStart(2, 0); // yields initial letter followed by numerical value, padded with zeros to min three digits
-    } else {
-        scriptId = "";
-    }
-    let shouldAssert = testName.match(/^S[0-9]+/g)[0];
-
+    var scriptId = makeId(scriptName);
+    let testId = makeId(testName);
     let browserPfx = makePrefix(browserName);
     let platformPfx = makePrefix(platformName);
     let devicePfx = makePrefix(deviceName);
 
-    let uid = `${scriptId}:${shouldAssert}:${browserPfx}:${platformPfx}:${deviceName}`;
+    let uid = `${scriptId}:${testId}:${browserPfx}:${platformPfx}:${deviceName}`;
 
     return {
         "uid": uid,
         "scriptId": scriptId,
-        "testId": shouldAssert
+        "testId": testId
     };
 
     function makePrefix(str) {
@@ -148,6 +142,17 @@ function constructUID(scriptName, testName, browserName, platformName, deviceNam
             pfx = "";
         }
         return pfx;
+    }
+
+    function makeId(str) {
+        // Extracts an indentifier of one upper cse alpha character followed by digits padded to 3 characters with zeros if needed.
+        var idMatch = str.match(/^([A-Z])([0-9]+)/); // E.g. patterns: A1, A12, B24
+        if (idMatch !== null) {
+            idMatch = idMatch[1] + idMatch[2].padStart(2, 0); // yields initial letter followed by numerical value, padded with zeros to min three digits
+        } else {
+            idMatch = "";
+        }
+        return idMatch;
     }
 };
 
