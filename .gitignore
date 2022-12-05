@@ -108,3 +108,4 @@ dist
 # Module specific
 reports/*
 test.xml
+./tmp/*
