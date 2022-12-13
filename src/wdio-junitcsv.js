@@ -19,7 +19,7 @@ const testSuites = xpath.select('//testsuite', xmlInput);
     // Array to hold output.
     const out = [];
     // Header row
-    out.push('"UUID","uniqueId","specPath","scriptId","testId","suiteName","browserName","platformName","deviceName","testName","state","error","urlExpected","urlActual","imageVariance","start","duration"');
+    out.push('"UUID","uniqueId","specPath","scriptId","testId","suiteName","browserName","platformName","deviceName","testName","state","error","errorType","urlExpected","urlActual","imageVariance","start","duration"');
 
     for (suite of testSuites) {
         const startTime = suite.getAttribute('timestamp');
@@ -60,10 +60,11 @@ const testSuites = xpath.select('//testsuite', xmlInput);
             const uniqueId = ids.uid;
             const scriptId = ids.scriptId;
             const testId = ids.testId;
+            const errorType = getErrorType(error);
             const urlActual = getAssertionURLs(error).actual;
             const urlExpected = getAssertionURLs(error).expected;
             const imageVariance = getImageVariance(checkExist(error));
-            const suiteEls = [timeUuid, uniqueId, specPath, scriptId, testId, suiteName, browserName, platformName, deviceName, testName, state, error, urlExpected, urlActual, imageVariance, startTime, duration];
+            const suiteEls = [timeUuid, uniqueId, specPath, scriptId, testId, suiteName, browserName, platformName, deviceName, testName, state, error, errorType, urlExpected, urlActual, imageVariance, startTime, duration];
             line = '"' + suiteEls.join('","') + '"';
             out.push(line);
         }
@@ -115,6 +116,15 @@ function reformatError(e) {
         rErr = rErr.replace(/"|,/g, ' ');
         return rErr;
     }
+}
+
+function getErrorType(e) {
+    // Categorises type of error based on detail received
+    if (e.length == 0) return "";
+    if (e.match(/element wasn't found|still not existing/)) return "Element not found";
+    if (e.match(/Received:\s{1,}[0-9]{1,}/)) return "Image mismatch";
+    if (e.match(/^Expect window to have url/)) return "URL mismatch";
+    return e.length;
 }
 
 function constructUID(scriptName, testName, browserName, platformName, deviceName) {
