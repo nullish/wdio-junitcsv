@@ -120,11 +120,11 @@ function reformatError(e) {
 
 function getErrorType(e) {
     // Categorises type of error based on detail received
-    if (e.length = 0) return "";
+    if (e.length == 0) return "";
     if (e.match(/element wasn't found|still not existing/)) return "Element not found";
     if (e.match(/Received:\s{1,}[0-9]{1,}/)) return "Image mismatch";
     if (e.match(/^Expect window to have url/)) return "URL mismatch";
-    return "Other";
+    return e.length;
 }
 
 function constructUID(scriptName, testName, browserName, platformName, deviceName) {
