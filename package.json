@@ -1,6 +1,6 @@
 {
   "name": "wdio-junitcsv",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Convert wdio ouptut from Junit reportr XML to CSV",
   "main": "wdio-junitcsv.js",
   "scripts": {
