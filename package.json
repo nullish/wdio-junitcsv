@@ -11,6 +11,10 @@
   ],
   "author": "Nullish",
   "license": "GNU",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sonyzach/usfm-validator.git"
+  },
   "dependencies": {
     "colors": "^1.4.0",
     "joinxmlfiles": "^1.1.0",
