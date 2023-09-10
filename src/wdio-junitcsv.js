@@ -19,7 +19,7 @@ const testSuites = xpath.select('//testsuite', xmlInput);
     // Array to hold output.
     const out = [];
     // Header row
-    out.push('"UUID","uniqueId","specPath","scriptId","testId","suiteName","browserName","platformName","deviceName","testName","state","error","errorType","urlExpected","urlActual","imageVariance","start","duration"');
+    out.push('"UUID","uniqueId","specPath","scriptId","testId","suiteName","browserName","platformName","deviceName","testName","state","error","errorType","urlInitial","urlExpected","urlActual","imageVariance","start","duration"');
 
     for (suite of testSuites) {
         const startTime = suite.getAttribute('timestamp');
@@ -60,11 +60,12 @@ const testSuites = xpath.select('//testsuite', xmlInput);
             const uniqueId = ids.uid;
             const scriptId = ids.scriptId;
             const testId = ids.testId;
+            const urlInitial = getInitialURL(testCases[i].getElementsByTagName("system-out")[0].textContent);
             const errorType = getErrorType(error);
             const urlActual = getAssertionURLs(error).actual;
             const urlExpected = getAssertionURLs(error).expected;
             const imageVariance = getImageVariance(checkExist(error));
-            const suiteEls = [timeUuid, uniqueId, specPath, scriptId, testId, suiteName, browserName, platformName, deviceName, testName, state, error, errorType, urlExpected, urlActual, imageVariance, startTime, duration];
+            const suiteEls = [timeUuid, uniqueId, specPath, scriptId, testId, suiteName, browserName, platformName, deviceName, testName, state, error, errorType, urlInitial, urlExpected, urlActual, imageVariance, startTime, duration];
             line = '"' + suiteEls.join('","') + '"';
             out.push(line);
         }
@@ -199,6 +200,13 @@ function getAssertionURLs(errDetail) {
         "expected": urlExpected,
         "actual": urlActual,
     };
+}
+
+function getInitialURL(sysOutText) {
+    // Receives sytem-out logging text body and returns the first URL encountered
+    const rxURL = /(?<=RESULT: {"url":").*?(?=")/;
+    const initialURL = sysOutText.match(rxURL).length > 0 ? sysOutText.match(rxURL)[0] : "";
+    return initialURL;
 }
 
 module.exports = wdioJunitCsv;

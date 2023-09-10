@@ -41,6 +41,7 @@ console.log(wdioJunitCSV('./path/to/reports/'));
 | testName | Name of test case within suite |
 | state | Passed or failed, based on whether `<failed>` element is present in Junit test case |
 | error | Taken from error message in Junit report |
+| urlInitial | First URL encountered when running the test |
 | urlExpected | When a test case fails on URL matching, extracts the expected URL |
 | urlActual | When a test case fails on URL matching, extracts the actual URL returned |
 | imageVariance | When using `wdio-image-comparison-service` and the test fails, returns the reported degree of variance beteen images |
