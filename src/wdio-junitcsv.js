@@ -203,10 +203,12 @@ function getAssertionURLs(errDetail) {
 }
 
 function getInitialURL(sysOutText) {
-    // Receives sytem-out logging text body and returns the first URL encountered
+    // Receives system-out logging text body and returns the first URL encountered
     const rxURL = /(?<=RESULT: {"url":").*?(?=")/;
-    const initialURL = sysOutText.match(rxURL).length > 0 ? sysOutText.match(rxURL)[0] : "";
+    const match = sysOutText.match(rxURL);
+    const initialURL = match ? match[0] : "";
     return initialURL;
 }
+
 
 module.exports = wdioJunitCsv;
